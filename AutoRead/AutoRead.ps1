@@ -5,7 +5,7 @@ adb connect 127.0.0.1:62001
 
 
 $flag=0 #阅读总时长计时
-while($flag -lt 3600000)
+while($flag -lt 10800000)
 {
 	$dx=Get-Random -minimum 621 -maximum 651
 	$dy=Get-Random -minimum 913 -maximum 953

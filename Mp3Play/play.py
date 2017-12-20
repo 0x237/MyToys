@@ -42,6 +42,7 @@ while 1:
 		print(flist[index])
 		filepath = dirname + flist[index]
 
+		# 复制播放文件到temp.mp3,主要是为了防止因为文件名原因引起ffplay使用问题
 		open(dirname + "temp.mp3", "wb").write(open(filepath, "rb").read())	
 
 		loopcnt = mincnt + int(random.random()*100)%(maxcnt - mincnt + 1)

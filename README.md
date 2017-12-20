@@ -22,7 +22,9 @@
     - path是MP3所在文件夹，min为最小循环次数，max为最大循环次数
     - 可以省略所有参数，或者只有文件夹路径，或者包括所有参数
 
-### WordToAss    //word转换到ass文件(未完成)
+### WordToAss    //word转换到ass文件(只能转换1080p和720p的非mv的)
 * 功能：字幕组打轴前期准备工作
 * 环境：
-    - Python3模块：python-docx, lxml
+    - Python3模块：python-docx, lxml(python-docx依赖于)
+* 使用：
+    - python3 WordToAss.py [path]
