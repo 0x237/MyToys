@@ -17,8 +17,8 @@ def gettimestr(duration):
 	return minstr1 + ":" + secstr1, minstr + ":" + secstr
 
 
-dirname = "E:\\coding\\MyTools\\test\\测试\\"
-dirname = sys.argv[1]
+dirname = "D:\\youzimu\\201803\\Honest Trailers - Thor_ Ragnarok"
+# dirname = sys.argv[1]
 
 # 保证路径以\结尾
 if dirname[-1] != "\\":
@@ -110,8 +110,7 @@ if videowidth == 1920 and videoheight == 1080:
 if videowidth == 1280 and videoheight == 720:
 	isnormal = 1
 	linesplit = "\\N{\\fnCalibri\\fs35\\shad1\\bord2.5\\c&HFFFFFF&\\b0\\4c&H000000&\\3c&H000000&}"
-	videohead = 
-		"Dialogue: 0,0:00:00.00,0:00:07.00,Default,,0,0,0,,{\\p1\\shad0\\blur0\\c&H000000&\\1a&H80&\\3a&H80&\\4a&H80&\\fad(0,480)\\pos(640,130)}m 0 0 l 0 0 l 0 0 l 1830 0 l 1830 518 l 0 518\n" + \
+	videohead = "Dialogue: 0,0:00:00.00,0:00:07.00,Default,,0,0,0,,{\\p1\\shad0\\blur0\\c&H000000&\\1a&H80&\\3a&H80&\\4a&H80&\\fad(0,480)\\pos(640,130)}m 0 0 l 0 0 l 0 0 l 1830 0 l 1830 518 l 0 518\n" + \
 		"Dialogue: 0,0:00:00.00,0:00:07.00,Default,,0,0,0,,{\\c&HFFFFFF&\\shad0\\bord0\\fs45\\fn方正品尚黑简体\\b1\\fad(0,800)\\pos(640,124)}听译:{\\fs48\\c&HD7E100&}XXXX     {\\fs45\\c&HFFFFFF&}校正:{\\fs48\\c&HD7E100&}XXXX     {\\fs45\\c&HFFFFFF&}时轴:{\\fs48\\c&HD7E100&}XXXX\n" + \
 		"Dialogue: 0,0:00:00.00,0:00:07.00,Default,,0,0,0,,{\\c&HFFFFFF&\\shad0\\bord0\\fs45\\fn方正品尚黑简体\\b1\\fad(0,800)\\pos(640,67)}微博搜索:{\\c&HD7E100&\\fs48}@柚子木字幕组   {\\c&HFFFFFF&\\fs45}微信号:{\\c&HD7E100&\\fs48}Youzimu\n"
 	footstart, footend = gettimestr(duration)
