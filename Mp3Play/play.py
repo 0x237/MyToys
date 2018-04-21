@@ -3,9 +3,9 @@ import sys
 import random
 
 
-dirname = "C:\\Users\\870987\\Music"  # MP3文件所在文件夹，路径中不能包含空格
-mincnt = 4  # 最小循环次数
-maxcnt = 6  # 最大循环次数
+dirname = "C:\\Users\\le\\Music"  # MP3文件所在文件夹，路径中不能包含空格
+mincnt = 1  # 最小循环次数
+maxcnt = 3  # 最大循环次数
 
 # 读取命令行参数， 只传入MP3所在文件夹
 if len(sys.argv) == 2:
