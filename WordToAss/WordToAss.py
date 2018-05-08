@@ -4,6 +4,7 @@ import docx
 import subprocess
 import json
 import re
+from win32com import client as wc
 
 # 转换视频播放秒数为ass文件要求的格式，获取片尾固定字幕的起始时间
 def gettimestr(duration):
@@ -30,7 +31,23 @@ for efile in flist:
     assname = os.path.splitext(efile)[0]
     extname = os.path.splitext(efile)[1]
     # 获取doc文档内容
-    if extname == ".doc" or extname == ".docx":
+    if extname == ".doc":
+        # print("请将word文档另存为docx格式并删除原文件后再使用")
+        # end = input("回车键退出")
+        # sys.exit()
+        word = wc.Dispatch("Word.Application")
+        dotdoc = word.Documents.Open(dirname+efile)
+        dotdoc.SaveAs(dirname+efile+"x",12)
+        print("已将.doc格式转换为.docx")
+        print("word文档：",efile)
+        dotdoc.Close()
+        word.Quit()
+        docpath = dirname+efile+"x"
+        docfile = docx.Document(docpath)
+        doctext = [paragraph.text for paragraph in docfile.paragraphs]
+
+        
+    if extname == ".docx":
         print("word文档：",efile)
         docpath = dirname+efile
         docfile = docx.Document(docpath)
@@ -81,10 +98,12 @@ asshead = asshead +    "[Aegisub Project Garbage]\n" + \
 assstyle = "[V4+ Styles]\n" + \
     "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n" + \
     "Style: Default,Arial,20,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,2,2,2,10,10,10,1\n" + \
-    "Style: 柚子木-中文-1080P-2018,方正正粗黑_GBK,75,&H00D7E100,&HFFD7E100,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,5,0,2,0,0,15,1\n" + \
-    "Style: 柚子木-注释-1080P-2018,方正正准黑_GBK,65,&H0000FFFF,&HFF00FFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,3,0,8,0,0,15,1\n" + \
-    "Style: 柚子木-中文-720P-2018,方正正粗黑_GBK,50,&H00D7E100,&HFFD7E100,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,3,0,2,0,0,10,1\n" + \
-    "Style: 柚子木-注释-720P-2018,方正正准黑_GBK,43,&H0000FFFF,&HFF00FFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,8,0,0,10,1\n" 
+    "Style: 1920-798-中文,方正正粗黑_GBK,55,&H00D7E100,&HFFD7E100,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,5,0,2,0,0,10,1\n" + \
+    "Style: 1920-798-注释,方正正准黑_GBK,50,&H0000FFFF,&HFF00FFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,3,0,8,0,0,15,1\n" + \
+    "Style: 柚子木180501_720P-中文,方正正粗黑_GBK,50,&H00D7E100,&HFFD7E100,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,3,0,2,0,0,10,1\n" + \
+    "Style: 柚子木180501_720P-注释,方正正准黑_GBK,43,&H0000FFFF,&HFF00FFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,8,0,0,10,1\n" + \
+    "Style: 柚子木180501_1080P-中文,方正正粗黑_GBK,75,&H00D7E100,&HFFD7E100,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,5,0,2,0,0,15,1\n" + \
+    "Style: 柚子木180501_1080P-注释,方正正准黑_GBK,65,&H0000FFFF,&HFF00FFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,3,0,8,0,0,15,1\n" 
 
 
 isnormal = 0  # 判断视频文件的分辨率是否是可以处理的分辨率
@@ -92,27 +111,39 @@ isnormal = 0  # 判断视频文件的分辨率是否是可以处理的分辨率
 # 对不同的分辨率的视频定义 \N的替代内容、片头尾、所用样式
 if videowidth == 1920 and videoheight == 1080:
     isnormal = 1
-    linesplit = "\\N{\\fnCalibri\\fs50\\c&HFFFFFF&\\3c&H000000&\\bord3\\shad0}"
-    videohead = "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{\\fad(0,500)}{\\an8\\pos(960,0)}{\\fscx1920\\fscy210\\c&H000000&\\1a&H80&\\bord0\\shad0}{\\p1}m 0 0 l 100 0 l 100 100 l 0 100 l 0 0\n" + \
-        "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{\\fad(0,500)}{\\an8\\pos(960,30)}{\\fn方正品尚黑简体\\b1\\fs70\\bord0\\shad0}{\\c&HFFFFFF&}手机应用市场搜索APP  [ {\\c&HD7E100&}柚tube{\\c&HFFFFFF&} ]\n" + \
-        "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{\\fad(0,500)}{\\an8\\pos(960,120)}{\\fn方正品尚黑简体\\b1\\fs70\\bord0\\shad0}{\\c&HFFFFFF&}听译: {\\c&HD7E100&}XXX    {\\c&HFFFFFF&}校正: {\\c&HD7E100&}XXX    {\\c&HFFFFFF&}时轴: {\\c&HD7E100&}XXX\n"
+    linesplit = "\\N{柚子木180501\\fnCalibri\\fs50\\c&HFFFFFF&\\3c&H000000&\\bord3\\shad0}"
+    videohead = "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{柚子木180501}{\\fad(0,500)}{\\an8\\pos(960,0)}{\\fscx1920\\fscy210\\c&H000000&\\1a&H80&\\bord0\\shad0}{\\p1}m 0 0 l 100 0 l 100 100 l 0 100 l 0 0\n" + \
+        "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{柚子木180501}{\\fad(0,500)}{\\an8\\pos(960,30)}{\\fn方正品尚黑简体\\b1\\fs70\\bord0\\shad0}{\\c&HFFFFFF&}微博 & 微信公众号  [ {\\c&HD7E100&}柚子木字幕组{\\c&HFFFFFF&} ]\n" + \
+        "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{柚子木180501}{\\fad(0,500)}{\\an8\\pos(960,120)}{\\fn方正品尚黑简体\\b1\\fs70\\bord0\\shad0}{\\c&HFFFFFF&}听译: {\\c&HD7E100&}XXX    {\\c&HFFFFFF&}校正: {\\c&HD7E100&}XXX    {\\c&HFFFFFF&}时轴: {\\c&HD7E100&}XXX\n"
     footstart, footend = gettimestr(duration)
-    videofoot = "Dialogue: 0,0:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{\\fad(500,0)}{\\an8\\pos(960,0)}{\\fscx1920\\fscy210\\c&H000000&\\1a&H80&\\bord0\\shad0}{\\p1}m 0 0 l 100 0 l 100 100 l 0 100 l 0 0\n" + \
-        "Dialogue: 0,0:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{\\fad(500,0)}{\\an8\\pos(960,30)}{\\fn方正品尚黑简体\\b1\\fs70\\bord0\\shad0}{\\c&HFFFFFF&}微博 & 微信公众号 搜索 {\\c&HD7E100&}@柚子木字幕组\n" + \
-        "Dialogue: 0,0:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{\\fad(500,0)}{\\an8\\pos(960,120)}{\\fn方正品尚黑简体\\b1\\fs70\\bord0\\shad0}{\\c&HFFFFFF&}访问 {\\c&HD7E100&}www.uzimu.com {\\c&HFFFFFF&}下载 \n"
-    styleusing = "柚子木-中文-1080P-2018"        
+    videofoot = "Dialogue: 0,0:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{柚子木180501}{\\fad(500,0)}{\\an8\\pos(960,0)}{\\fscx1920\\fscy210\\c&H000000&\\1a&H80&\\bord0\\shad0}{\\p1}m 0 0 l 100 0 l 100 100 l 0 100 l 0 0\n" + \
+        "Dialogue: 0,0:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{柚子木180501}{\\fad(500,0)}{\\an8\\pos(960,30)}{\\fn方正品尚黑简体\\b1\\fs70\\bord0\\shad0}{\\c&HFFFFFF&}微博 & 微信公众号 搜索 {\\c&HD7E100&}@柚子木字幕组\n" + \
+        "Dialogue: 0,0:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{柚子木180501}{\\fad(500,0)}{\\an8\\pos(960,120)}{\\fn方正品尚黑简体\\b1\\fs70\\bord0\\shad0}{\\c&HFFFFFF&}加入字幕组 QQ群 {\\c&HD7E100&}379318727 \n"
+    styleusing = "柚子木180501_1080P-中文"        
 
 if videowidth == 1280 and videoheight == 720:
     isnormal = 1
-    linesplit = "\\N{\\fnCalibri\\fs33\\c&HFFFFFF&\\3c&H000000&\\bord2\\shad0}"
-    videohead = "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{\\fad(0,500)}{\\an8\\pos(640,0)}{\\fscx1280\\fscy140\\c&H000000&\\1a&H80&\\bord0\\shad0}{\\p1}m 0 0 l 100 0 l 100 100 l 0 100 l 0 0\n" + \
-        "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{\\fad(0,500)}{\\an8\\pos(640,20)}{\\fn方正品尚黑简体\\b1\\fs45\\bord0\\shad0}{\\c&HFFFFFF&}手机应用市场搜索APP  [ {\\c&HD7E100&}柚tube{\\c&HFFFFFF&} ]\n" + \
-        "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{\\fad(0,500)}{\\an8\\pos(640,80)}{\\fn方正品尚黑简体\\b1\\fs45\\bord0\\shad0}{\\c&HFFFFFF&}听译: {\\c&HD7E100&}XXX    {\\c&HFFFFFF&}校正: {\\c&HD7E100&}XXX    {\\c&HFFFFFF&}时轴: {\\c&HD7E100&}XXX\n"
+    linesplit = "\\N{柚子木180501\\fnCalibri\\fs33\\c&HFFFFFF&\\3c&H000000&\\bord2\\shad0}"
+    videohead = "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{柚子木180501}{\\fad(0,500)}{\\an8\\pos(640,0)}{\\fscx1280\\fscy140\\c&H000000&\\1a&H80&\\bord0\\shad0}{\\p1}m 0 0 l 100 0 l 100 100 l 0 100 l 0 0\n" + \
+        "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{柚子木180501}{\\fad(0,500)}{\\an8\\pos(640,20)}{\\fn方正品尚黑简体\\b1\\fs45\\bord0\\shad0}{\\c&HFFFFFF&}微博 & 微信公众号  [ {\\c&HD7E100&}柚子木字幕组{\\c&HFFFFFF&} ]\n" + \
+        "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{柚子木180501}{\\fad(0,500)}{\\an8\\pos(640,80)}{\\fn方正品尚黑简体\\b1\\fs45\\bord0\\shad0}{\\c&HFFFFFF&}听译: {\\c&HD7E100&}XXX    {\\c&HFFFFFF&}校正: {\\c&HD7E100&}XXX    {\\c&HFFFFFF&}时轴: {\\c&HD7E100&}XXX\n"
     footstart, footend = gettimestr(duration)
-    videofoot = "Dialogue: 0,0:00:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{\\fad(500,0)}{\\an8\\pos(640,0)}{\\fscx1280\\fscy140\\c&H000000&\\1a&H80&\\bord0\\shad0}{\\p1}m 0 0 l 100 0 l 100 100 l 0 100 l 0 0\n" + \
-        "Dialogue: 0,0:00:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{\\fad(500,0)}{\\an8\\pos(640,20)}{\\fn方正品尚黑简体\\b1\\fs45\\bord0\\shad0}{\\c&HFFFFFF&}微博 & 微信公众号 搜索 {\\c&HD7E100&}@柚子木字幕组\n" + \
-        "Dialogue: 0,0:00:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{\\fad(500,0)}{\\an8\\pos(640,80)}{\\fn方正品尚黑简体\\b1\\fs45\\bord0\\shad0}{\\c&HFFFFFF&}访问 {\\c&HD7E100&}www.uzimu.com {\\c&HFFFFFF&}下载 \n"
-    styleusing = "柚子木-中文-720P-2018"
+    videofoot = "Dialogue: 0,0:00:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{柚子木180501}{\\fad(500,0)}{\\an8\\pos(640,0)}{\\fscx1280\\fscy140\\c&H000000&\\1a&H80&\\bord0\\shad0}{\\p1}m 0 0 l 100 0 l 100 100 l 0 100 l 0 0\n" + \
+        "Dialogue: 0,0:00:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{柚子木180501}{\\fad(500,0)}{\\an8\\pos(640,20)}{\\fn方正品尚黑简体\\b1\\fs45\\bord0\\shad0}{\\c&HFFFFFF&}微博 & 微信公众号 搜索 {\\c&HD7E100&}@柚子木字幕组\n" + \
+        "Dialogue: 0,0:00:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{柚子木180501}{\\fad(500,0)}{\\an8\\pos(640,80)}{\\fn方正品尚黑简体\\b1\\fs45\\bord0\\shad0}{\\c&HFFFFFF&}加入字幕组 QQ群 {\\c&HD7E100&}379318727 \n"
+    styleusing = "柚子木180501_720P-中文"
+
+if videowidth == 1920 and videoheight == 798:
+    isnormal = 1
+    linesplit = "\\N{柚子木180501\\fnCalibri\\fs40\\c&HFFFFFF&\\3c&H000000&\\bord3\\shad0}"
+    videohead = "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{柚子木180501}{\\fad(0,500)}{\\an8\\pos(960,0)}{\\fscx1920\\fscy180\\c&H000000&\\1a&H80&\\bord0\\shad0}{\\p1}m 0 0 l 100 0 l 100 100 l 0 100 l 0 0\n" + \
+        "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{柚子木180501}{\\fad(0,500)}{\\an8\\pos(960,30)}{\\fn方正品尚黑简体\\b1\\fs55\\bord0\\shad0}{\\c&HFFFFFF&}微博 & 微信公众号  [ {\\c&HD7E100&}柚子木字幕组{\\c&HFFFFFF&} ]\n" + \
+        "Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0,0,0,,{柚子木180501}{\\fad(0,500)}{\\an8\\pos(960,100)}{\\fn方正品尚黑简体\\b1\\fs55\\bord0\\shad0}{\\c&HFFFFFF&}听译: {\\c&HD7E100&}XXX    {\\c&HFFFFFF&}时轴: {\\c&HD7E100&}XXX\n"
+    footstart, footend = gettimestr(duration)
+    videofoot = "Dialogue: 0,0:00:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{柚子木180501}{\\fad(500,0)}{\\an8\\pos(960,0)}{\\fscx1920\\fscy180\\c&H000000&\\1a&H80&\\bord0\\shad0}{\\p1}m 0 0 l 100 0 l 100 100 l 0 100 l 0 0\n" + \
+        "Dialogue: 0,0:00:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{柚子木180501}{\\fad(500,0)}{\\an8\\pos(960,30)}{\\fn方正品尚黑简体\\b1\\fs55\\bord0\\shad0}{\\c&HFFFFFF&}微博 & 微信公众号 搜索 {\\c&HD7E100&}@柚子木字幕组\n" + \
+        "Dialogue: 0,0:00:"+footstart+".00,0:"+footend+".00,Default,,0,0,0,,{柚子木180501}{\\fad(500,0)}{\\an8\\pos(960,100)}{\\fn方正品尚黑简体\\b1\\fs55\\bord0\\shad0}{\\c&HFFFFFF&}加入字幕组 QQ群 {\\c&HD7E100&}379318727 \n"
+    styleusing = "1920-798-中文"
 
 if not isnormal:
     print("视频分辨率特殊")
